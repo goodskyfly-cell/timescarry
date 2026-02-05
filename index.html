@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>國小數學：二位數乘法分解練習卷</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        body { font-family: "Courier New", "Microsoft JhengHei", monospace; margin: 0; padding: 0; background: #eee; }
+        
+        .no-print { 
+            text-align: center; 
+            padding: 15px; 
+            background: #2c3e50; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button { 
+            padding: 8px 15px; font-size: 14px; cursor: pointer; color: white; 
+            border: none; border-radius: 4px; transition: 0.2s;
+        }
+        .btn-none { background: #27ae60; } 
+        .btn-unit { background: #2980b9; } 
+        .btn-tens { background: #8e44ad; } 
+        .btn-rand { background: #c0392b; }
+        button:hover { opacity: 0.8; filter: brightness(1.2); }
+
+        .a4-page {
+            width: 210mm; height: 297mm; padding: 10mm 15mm;
+            margin: 10mm auto; background: white; box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .header { text-align: center; margin-bottom: 5px; }
+        .header h1 { margin: 5px 0; font-size: 18pt; }
+        
+        /* 修正個人資料欄位順序與間距 */
+        .student-info { 
+            display: flex; justify-content: flex-end; margin-bottom: 15px; font-size: 12pt; 
+        }
+        .student-info .field { margin-left: 20px; }
+        .student-info .line { border-bottom: 1px solid #000; display: inline-block; text-align: center; }
+        .w-class { width: 80px; }
+        .w-no { width: 60px; }
+        .w-name { width: 150px; }
+
+        .quiz-container {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr); gap: 10px; height: 245mm;
+        }
+
+        .math-problem {
+            border: 1px solid #ccc; display: flex; flex-direction: column;
+            align-items: center; padding: 10px 5px; justify-content: center;
+        }
+
+        .calc-grid {
+            display: grid; grid-template-columns: 25px 35px 35px 35px 55px; 
+            font-size: 22pt; text-align: center; line-height: 1.4;
+        }
+
+        .col-100 { grid-column: 2; }
+        .col-10  { grid-column: 3; }
+        .col-1   { grid-column: 4; }
+        .col-sign { grid-column: 1; text-align: right; padding-right: 5px; }
+        .col-hint { grid-column: 5; font-size: 9pt; text-align: left; padding-left: 5px; align-self: center; color: #444; font-weight: bold;}
+
+        .line-math { grid-column: 1 / 5; height: 2px; background: black; margin: 4px 0; }
+
+        .square-box {
+            width: 32px; height: 40px; border: 1.5px dashed #333;
+            margin: 1px auto; display: flex; justify-content: center; align-items: center;
+        }
+
+        .empty { visibility: hidden; }
+
+        @media print {
+            body { background: none; }
+            .no-print { display: none; }
+            .a4-page { margin: 0; box-shadow: none; border: none; }
+            .math-problem { border: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn-none" onclick="generateProblems('none')">🟢 不進位</button>
+    <button class="btn-unit" onclick="generateProblems('unit')">🔵 個位進十位</button>
+    <button class="btn-tens" onclick="generateProblems('tens')">🟣 十位進百位</button>
+    <button class="btn-rand" onclick="generateProblems('any')">🔴 隨機進位</button>
+</div>
+
+<div class="a4-page">
+    <div class="header">
+        <h1 id="pageTitle">二位數乘法拆解練習</h1>
+    </div>
+
+    <div class="student-info">
+        <div class="field">班級：<span class="line w-class"></span></div>
+        <div class="field">座號：<span class="line w-no"></span></div>
+        <div class="field">姓名：<span class="line w-name"></span></div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container"></div>
+</div>
+
+<script>
+    function generateProblems(mode) {
+        const container = document.getElementById('quizContainer');
+        const title = document.getElementById('pageTitle');
+        container.innerHTML = ''; 
+        
+        let modeName = "";
+        switch(mode) {
+            case 'none': modeName = "不進位模式"; break;
+            case 'unit': modeName = "個位進十位模式"; break;
+            case 'tens': modeName = "十位進百位模式"; break;
+            case 'any':  modeName = "混合進位模式"; break;
+        }
+        title.innerText = `二位數乘一位數練習 (${modeName})`;
+
+        for (let i = 0; i < 9; i++) {
+            let num1, num2, match;
+            do {
+                num1 = Math.floor(Math.random() * 89) + 11;
+                num2 = Math.floor(Math.random() * 8) + 2;
+                let n1_10 = Math.floor(num1 / 10);
+                let n1_1 = num1 % 10;
+                let isUnitCarry = (n1_1 * num2) >= 10;
+                let isTensCarry = (n1_10 * num2) >= 10;
+                if (mode === 'none') match = !isUnitCarry && !isTensCarry;
+                else if (mode === 'unit') match = isUnitCarry && !isTensCarry;
+                else if (mode === 'tens') match = !isUnitCarry && isTensCarry;
+                else match = isUnitCarry || isTensCarry;
+            } while (!match);
+
+            let n1_10 = Math.floor(num1 / 10);
+            let n1_1 = num1 % 10;
+
+            container.innerHTML += `
+            <div class="math-problem">
+                <div class="calc-grid">
+                    <div class="empty"></div><div class="empty"></div><div class="col-10">${n1_10}</div><div class="col-1">${n1_1}</div><div class="empty"></div>
+                    <div class="col-sign">×</div><div class="empty"></div><div class="empty"></div><div class="col-1">${num2}</div><div class="empty"></div>
+                    <div class="line-math"></div>
+                    <div class="empty"></div><div class="empty"></div><div class="col-10"><div class="square-box"></div></div><div class="col-1"><div class="square-box"></div></div><div class="col-hint">←(${n1_1}×${num2})</div>
+                    <div class="empty"></div><div class="col-100"><div class="square-box"></div></div><div class="col-10"><div class="square-box"></div></div><div class="col-1"><div class="square-box"></div></div><div class="col-hint">←(${n1_10}0×${num2})</div>
+                    <div class="line-math"></div>
+                    <div class="empty"></div><div class="col-100"><div class="square-box"></div></div><div class="col-10"><div class="square-box"></div></div><div class="col-1"><div class="square-box"></div></div><div class="col-hint">←(總和)</div>
+                </div>
+            </div>`;
+        }
+    }
+    window.onload = () => generateProblems('none');
+</script>
+
+</body>
+</html>
